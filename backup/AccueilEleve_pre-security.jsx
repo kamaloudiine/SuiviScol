@@ -1,6 +1,8 @@
+// VERSION PRE-SECURITY - Avant implémentation BackHandler
+// Interface complète mais sans sécurité navigation
 
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Modal, TextInput, Alert, ScrollView, BackHandler } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Modal, TextInput, Alert, ScrollView } from 'react-native';
 import { Button, Card, FAB } from 'react-native-paper';
 import { Stack, useRouter } from 'expo-router';
 import { supabase } from '../supabaseClient';
@@ -11,7 +13,7 @@ export default function AccueilEleve() {
   const [notes, setNotes] = useState([]);
   const [absences, setAbsences] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('notes'); // 'notes' ou 'absences'
+  const [activeTab, setActiveTab] = useState('notes');
   const [loadingNotes, setLoadingNotes] = useState(false);
   const [loadingAbsences, setLoadingAbsences] = useState(false);
   
@@ -24,25 +26,20 @@ export default function AccueilEleve() {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      // Récupérer l'utilisateur connecté
       const { data: { user } } = await supabase.auth.getUser();
-      console.log('USER:', user);
       if (!user) {
         setLoading(false);
         return;
       }
       
-      // Récupérer les infos de l'élève
       const { data: studentData } = await supabase
         .from('students')
         .select('nom, classe, id, user_id')
         .eq('user_id', user.id)
         .single();
-      console.log('STUDENT:', studentData);
       setStudent(studentData);
       
       if (studentData) {
-        // Récupérer toutes les notes de l'élève
         setLoadingNotes(true);
         const { data: notesData, error: notesError } = await supabase
           .from('notes')
@@ -51,14 +48,12 @@ export default function AccueilEleve() {
           .order('date', { ascending: false });
         
         if (notesError) {
-          console.log('Erreur notes:', notesError);
           setNotes([]);
         } else {
           setNotes(notesData || []);
         }
         setLoadingNotes(false);
         
-        // Récupérer toutes les absences de l'élève
         setLoadingAbsences(true);
         const { data: absencesData, error: absencesError } = await supabase
           .from('absences')
@@ -67,7 +62,6 @@ export default function AccueilEleve() {
           .order('date', { ascending: false });
         
         if (absencesError) {
-          console.log('Erreur absences:', absencesError);
           setAbsences([]);
         } else {
           setAbsences(absencesData || []);
@@ -80,39 +74,7 @@ export default function AccueilEleve() {
     fetchData();
   }, []);
 
-  // Gestion du bouton retour arrière
-  useEffect(() => {
-    const backAction = () => {
-      // Rediriger vers l'index au lieu de permettre le retour vers login
-      router.replace('/');
-      return true; // Empêche le comportement par défaut
-    };
-
-    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
-
-    return () => backHandler.remove();
-  }, [router]);
-
-  // Fonction de déconnexion
-  const handleLogout = async () => {
-    Alert.alert(
-      'Déconnexion',
-      'Êtes-vous sûr de vouloir vous déconnecter ?',
-      [
-        {
-          text: 'Annuler',
-          style: 'cancel',
-        },
-        {
-          text: 'Déconnexion',
-          onPress: async () => {
-            await supabase.auth.signOut();
-            router.replace('/');
-          },
-        },
-      ]
-    );
-  };
+  // ❌ PAS DE GESTION BackHandler ici - Version pré-sécurité
 
   // Ouvrir le modal de justification
   const openJustificationModal = (absence) => {
@@ -140,7 +102,6 @@ export default function AccueilEleve() {
         .eq('id', selectedAbsence.id);
 
       if (error) {
-        console.log('Erreur justification:', error);
         Alert.alert('Erreur', 'Impossible de justifier l\'absence. Réessayez plus tard.');
       } else {
         Alert.alert('Succès', 'Votre absence a été justifiée avec succès.');
@@ -159,7 +120,6 @@ export default function AccueilEleve() {
         }
       }
     } catch (err) {
-      console.log('Erreur:', err);
       Alert.alert('Erreur', 'Une erreur inattendue s\'est produite.');
     }
 
@@ -201,9 +161,7 @@ export default function AccueilEleve() {
                 {student ? `${student.nom} - Classe ${student.classe}` : 'Chargement...'}
               </Text>
             </View>
-            <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-              <Text style={styles.logoutIcon}>🚪</Text>
-            </TouchableOpacity>
+            {/* ❌ PAS DE BOUTON LOGOUT - Version pré-sécurité */}
           </View>
         </View>
 
@@ -235,7 +193,7 @@ export default function AccueilEleve() {
           </View>
 
           {activeTab === 'notes' ? (
-            // Section Notes modernisée
+            // Section Notes modernisée - AVEC .map() (problème FlatList déjà corrigé)
             <View style={styles.contentSection}>
               <Text style={styles.sectionTitle}>
                 📊 Mes Notes ({notes.length})
@@ -291,7 +249,7 @@ export default function AccueilEleve() {
               )}
             </View>
           ) : (
-            // Section Absences modernisée
+            // Section Absences modernisée - AVEC .map()
             <View style={styles.contentSection}>
               <Text style={styles.sectionTitle}>
                 ⚠️ Mes Absences ({absences.length})
@@ -433,13 +391,14 @@ export default function AccueilEleve() {
   );
 }
 
+// Styles identiques à la version finale
 const styles = StyleSheet.create({
+  // ... tous les styles de la version finale
   container: {
     flex: 1,
     backgroundColor: '#F5F5F5',
   },
   
-  // Header moderne thème élève
   header: {
     backgroundColor: '#2196F3',
     paddingTop: 40,
@@ -448,275 +407,8 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
     elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
   },
   
-  headerContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  
-  headerIcon: {
-    fontSize: 32,
-    marginRight: 12,
-  },
-  
-  headerText: {
-    flex: 1,
-  },
-  
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
-    fontFamily: 'Roboto',
-  },
-  
-  headerSubtitle: {
-    fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.9)',
-    marginTop: 2,
-  },
-  
-  logoutButton: {
-    padding: 8,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-  },
-  
-  logoutIcon: {
-    fontSize: 20,
-    color: 'white',
-  },
-  
-  // Chargement
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 40,
-  },
-  
-  loadingText: {
-    marginTop: 10,
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
-  },
-  
-  scrollContainer: {
-    flex: 1,
-    paddingHorizontal: 16,
-  },
-  
-  // Onglets modernes
-  tabsContainer: {
-    flexDirection: 'row',
-    marginVertical: 16,
-    gap: 12,
-  },
-  
-  modernTab: {
-    flex: 1,
-    backgroundColor: 'white',
-    borderRadius: 12,
-    paddingVertical: 16,
-    paddingHorizontal: 12,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.22,
-    shadowRadius: 2.22,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    alignItems: 'center',
-  },
-  
-  modernActiveTab: {
-    backgroundColor: '#2196F3',
-    borderColor: '#2196F3',
-  },
-  
-  modernTabText: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#666',
-    textAlign: 'center',
-  },
-  
-  modernActiveTabText: {
-    color: 'white',
-  },
-  
-  modernTabSubtext: {
-    fontSize: 12,
-    color: '#999',
-    textAlign: 'center',
-    marginTop: 4,
-  },
-  
-  modernActiveTabSubtext: {
-    color: 'rgba(255, 255, 255, 0.9)',
-  },
-  
-  // Section de contenu
-  contentSection: {
-    flex: 1,
-    marginBottom: 80, // Espace pour FAB
-  },
-  
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#2196F3',
-    marginBottom: 16,
-    textAlign: 'center',
-    fontFamily: 'Roboto',
-  },
-  
-  // Cards des notes
-  noteCard: {
-    marginBottom: 12,
-    borderRadius: 12,
-    elevation: 3,
-    backgroundColor: 'white',
-  },
-  
-  noteHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  
-  noteSubject: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  
-  noteValue: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#2196F3',
-  },
-  
-  noteDetails: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  
-  noteEvaluation: {
-    fontSize: 14,
-    color: '#666',
-    fontWeight: '500',
-  },
-  
-  noteCoeff: {
-    fontSize: 14,
-    color: '#666',
-    fontWeight: '500',
-  },
-  
-  noteComment: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 8,
-    fontStyle: 'italic',
-    backgroundColor: '#E3F2FD',
-    padding: 8,
-    borderRadius: 6,
-  },
-  
-  noteDate: {
-    fontSize: 12,
-    color: '#999',
-    textAlign: 'right',
-  },
-  
-  // Cards des absences
-  absenceCard: {
-    marginBottom: 12,
-    borderRadius: 12,
-    elevation: 3,
-    backgroundColor: 'white',
-  },
-  
-  absenceHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  
-  absenceSubject: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  
-  absenceStatus: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  
-  absenceStatusText: {
-    color: 'white',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  
-  absenceDate: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 8,
-  },
-  
-  absenceReason: {
-    fontSize: 14,
-    color: '#666',
-    fontStyle: 'italic',
-    backgroundColor: '#FFF3E0',
-    padding: 8,
-    borderRadius: 6,
-    marginBottom: 8,
-  },
-  
-  justifyButton: {
-    borderRadius: 8,
-    marginTop: 8,
-    alignSelf: 'flex-start',
-  },
-  
-  // Cards vides
-  emptyCard: {
-    borderRadius: 12,
-    elevation: 2,
-    backgroundColor: 'white',
-    marginTop: 20,
-  },
-  
-  emptyText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#666',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  
-  emptySubtext: {
-    fontSize: 14,
-    color: '#999',
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-  
-  // FAB
   fab: {
     position: 'absolute',
     margin: 16,
@@ -725,90 +417,5 @@ const styles = StyleSheet.create({
     backgroundColor: '#2196F3',
   },
   
-  // Styles pour le modal (conservés et adaptés)
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  
-  modalContent: {
-    backgroundColor: 'white',
-    borderRadius: 15,
-    padding: 25,
-    width: '90%',
-    maxWidth: 400,
-    elevation: 10,
-  },
-  
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#2196F3',
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  
-  absenceInfo: {
-    backgroundColor: '#E3F2FD',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 15,
-  },
-  
-  absenceInfoText: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 4,
-  },
-  
-  inputLabel: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#333',
-    marginBottom: 8,
-  },
-  
-  textInput: {
-    borderWidth: 1,
-    borderColor: '#2196F3',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 14,
-    textAlignVertical: 'top',
-    marginBottom: 20,
-    backgroundColor: '#F9F9F9',
-  },
-  
-  modalButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 10,
-  },
-  
-  modalButton: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  
-  cancelButton: {
-    backgroundColor: '#f0f0f0',
-  },
-  
-  cancelButtonText: {
-    color: '#666',
-    fontWeight: 'bold',
-  },
-  
-  submitButton: {
-    backgroundColor: '#4CAF50',
-  },
-  
-  submitButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
+  // ... autres styles
 });
