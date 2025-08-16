@@ -765,26 +765,24 @@ export default function AccueilProf() {
                     Évaluation de classe - {classesTabs[activeTab]?.classe}
                   </Text>
                   
+                <TextInput
+                  style={styles.input}
+                  placeholder="Nom de l'évaluation"
+                  value={classEvalName}
+                  onChangeText={setClassEvalName}
+                  maxLength={50}
+                />
+                
+                <View style={styles.inputRow}>
                   <TextInput
-                    style={styles.input}
-                    placeholder="Nom de l'évaluation (ex: DS1, Interro...)"
-                    value={classEvalName}
-                    onChangeText={setClassEvalName}
-                    maxLength={50}
+                    style={[styles.input, styles.halfInput]}
+                    placeholder="Coefficient"
+                    keyboardType="numeric"
+                    value={classEvalCoeff}
+                    onChangeText={setClassEvalCoeff}
+                    maxLength={3}
                   />
-                  
-                  <View style={styles.inputRow}>
-                    <TextInput
-                      style={[styles.input, styles.halfInput]}
-                      placeholder="Coefficient"
-                      keyboardType="numeric"
-                      value={classEvalCoeff}
-                      onChangeText={setClassEvalCoeff}
-                      maxLength={3}
-                    />
-                  </View>
-                  
-                  <Text style={styles.notesLabel}>Notes des élèves :</Text>
+                </View>                  <Text style={styles.notesLabel}>Notes des élèves :</Text>
                   <Text style={styles.noteHelperText}>
                     💡 Saisissez les notes (0-20) - validation automatique
                   </Text>
@@ -945,7 +943,7 @@ export default function AccueilProf() {
                 <Text style={styles.inputLabel}>Raison de l'absence :</Text>
                 <TextInput
                   style={styles.textInput}
-                  placeholder="Ex: Maladie, rendez-vous médical, problème familial..."
+                  placeholder="Raison de l'absence"
                   value={absenceReason}
                   onChangeText={setAbsenceReason}
                   multiline
@@ -984,7 +982,7 @@ export default function AccueilProf() {
                 
                 <TextInput
                   style={styles.input}
-                  placeholder="Type d'évaluation (ex: DS1, Interro, TP...)"
+                  placeholder="Type d'évaluation"
                   value={noteEvaluation}
                   onChangeText={setNoteEvaluation}
                   maxLength={50}
@@ -993,7 +991,7 @@ export default function AccueilProf() {
                 <View style={styles.inputRow}>
                   <TextInput
                     style={[styles.input, styles.halfInput]}
-                    placeholder="Note (0-20)"
+                    placeholder="Note"
                     keyboardType="numeric"
                     value={noteValue}
                     onChangeText={handleNoteValueChange}

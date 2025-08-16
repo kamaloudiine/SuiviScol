@@ -5,9 +5,8 @@ import { useRouter } from 'expo-router';
 import { Stack } from 'expo-router';
 import { supabase } from '../../supabaseClient';
 
-
-export default function ParentScreen() {
-  const [schoolId, setSchoolId] = useState('');
+export default function AdministrateurScreen() {
+  const [adminId, setAdminId] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
@@ -17,29 +16,30 @@ export default function ParentScreen() {
 
   const handleLogin = async () => {
     setError('');
-    // 1. Chercher l'email correspondant à l'identifiant dans la table parents
-    const { data, error: fetchError } = await supabase
-      .from('parents')
-      .select('email, school_id')
-      .eq('school_id', schoolId)
-      .single();
-    console.log('LOGIN schoolId:', schoolId);
-    console.log('PARENT FETCH RESULT:', data, fetchError);
-    if (fetchError || !data) {
-      setError("Identifiant parent inconnu");
-      return;
+    
+    // Vérification des identifiants locaux d'abord
+    if (adminId === 'admin' && password === 'admin!') {
+      // Connexion avec le compte Supabase admin - utiliser le mot de passe saisi
+      const { error: loginError } = await supabase.auth.signInWithPassword({
+        email: 'admin@suiviscol.com',
+        password: password, // Utiliser le mot de passe saisi par l'utilisateur
+      });
+      
+      if (loginError) {
+        console.log('Erreur de connexion Supabase:', loginError);
+        if (loginError.message.includes('Invalid login credentials')) {
+          setError("Vérifiez que le compte admin@suiviscol.com existe dans Supabase avec le mot de passe 'admin!'");
+        } else {
+          setError("Erreur de connexion : " + loginError.message);
+        }
+        return;
+      }
+      
+      // Rediriger vers l'accueil administrateur
+      router.replace('/AccueilAdministrateur');
+    } else {
+      setError("Identifiant ou mot de passe administrateur incorrect");
     }
-    // 2. Connexion avec l'email trouvé et le mot de passe saisi
-    const { error: loginError } = await supabase.auth.signInWithPassword({
-      email: data.email,
-      password: password,
-    });
-    if (loginError) {
-      setError("Mot de passe incorrect");
-      return;
-    }
-    // 3. Rediriger vers l'accueil parent (replace pour éviter le retour arrière)
-    router.replace('/AccueilParent');
   };
 
   return (
@@ -55,7 +55,7 @@ export default function ParentScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Header moderne avec retour à l'accueil */}
+          {/* Header moderne avec thème administrateur (violet) */}
           <View style={styles.header}>
             <Button 
               mode="text" 
@@ -67,7 +67,7 @@ export default function ParentScreen() {
               Retour
             </Button>
             <Text style={styles.headerTitle}>📚 SuiviScol</Text>
-            <Text style={styles.headerSubtitle}>Connexion Parent</Text>
+            <Text style={styles.headerSubtitle}>Connexion Administration</Text>
           </View>
 
           {/* Card principale de connexion */}
@@ -75,25 +75,25 @@ export default function ParentScreen() {
             <Card style={styles.loginCard}>
               <Card.Content style={styles.cardContent}>
                 <View style={styles.userTypeIndicator}>
-                  <Text style={styles.userTypeIcon}>👨‍👩‍👧‍👦</Text>
-                  <Text style={styles.userTypeTitle}>Espace Parent</Text>
+                  <Text style={styles.userTypeIcon}>⚙️</Text>
+                  <Text style={styles.userTypeTitle}>Espace Administration</Text>
                   <Text style={styles.userTypeDescription}>
-                    Accédez au suivi scolaire de vos enfants
+                    Gérez les utilisateurs et administrez le système
                   </Text>
                 </View>
 
                 <View style={styles.inputContainer}>
                   <TextInput
-                    label="Identifiant scolaire"
-                    placeholder="Ex: PARENT001"
-                    value={schoolId}
-                    onChangeText={setSchoolId}
+                    label="Identifiant administrateur"
+                    placeholder="admin"
+                    value={adminId}
+                    onChangeText={setAdminId}
                     mode="outlined"
                     style={styles.input}
-                    left={<TextInput.Icon icon="account" />}
+                    left={<TextInput.Icon icon="shield-account" />}
                     keyboardType="default"
                     autoCapitalize="none"
-                    theme={{ colors: { primary: '#4CAF50' } }}
+                    theme={{ colors: { primary: '#9C27B0' } }}
                     returnKeyType="next"
                     onSubmitEditing={() => passwordRef.current?.focus()}
                     blurOnSubmit={false}
@@ -102,14 +102,14 @@ export default function ParentScreen() {
                   <TextInput
                     ref={passwordRef}
                     label="Mot de passe"
-                    placeholder="Mot de passe"
+                    placeholder="admin!"
                     value={password}
                     onChangeText={setPassword}
                     mode="outlined"
                     secureTextEntry
                     style={styles.input}
                     left={<TextInput.Icon icon="lock" />}
-                    theme={{ colors: { primary: '#4CAF50' } }}
+                    theme={{ colors: { primary: '#9C27B0' } }}
                     returnKeyType="done"
                     onSubmitEditing={handleLogin}
                   />
@@ -120,7 +120,7 @@ export default function ParentScreen() {
                   onPress={handleLogin}
                   style={styles.loginButton}
                   icon="login"
-                  buttonColor="#4CAF50"
+                  buttonColor="#9C27B0"
                   textColor="white"
                 >
                   Se connecter
@@ -131,6 +131,13 @@ export default function ParentScreen() {
                     <Text style={styles.errorText}>⚠️ {error}</Text>
                   </View>
                 ) : null}
+
+                {/* Aide pour les développeurs */}
+                <View style={styles.helpContainer}>
+                  <Text style={styles.helpText}>
+                    💡 Identifiants par défaut : admin / admin!
+                  </Text>
+                </View>
               </Card.Content>
             </Card>
           </View>
@@ -138,7 +145,7 @@ export default function ParentScreen() {
           {/* Footer discret */}
           <View style={styles.footer}>
             <Text style={styles.footerText}>
-              Besoin d'aide ? Contactez l'administration
+              Accès réservé aux administrateurs système
             </Text>
           </View>
         </ScrollView>
@@ -160,7 +167,7 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     paddingBottom: 20,
     paddingHorizontal: 20,
-    backgroundColor: '#4CAF50', // Couleur parent
+    backgroundColor: '#9C27B0', // Couleur administration (violet)
     borderBottomLeftRadius: 25,
     borderBottomRightRadius: 25,
     elevation: 6,
@@ -194,7 +201,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     paddingHorizontal: 20,
-    marginTop: -30, // Overlap avec le header
+    marginTop: -30, // Overlap élégant
   },
   loginCard: {
     borderRadius: 20,
@@ -222,7 +229,7 @@ const styles = StyleSheet.create({
   userTypeTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#4CAF50',
+    color: '#9C27B0', // Cohérence couleur administration
     marginBottom: 8,
   },
   userTypeDescription: {
@@ -242,7 +249,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingVertical: 8,
     elevation: 3,
-    shadowColor: '#4CAF50',
+    shadowColor: '#9C27B0',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
@@ -260,6 +267,20 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
     fontWeight: '500',
+  },
+  helpContainer: {
+    marginTop: 15,
+    padding: 12,
+    backgroundColor: '#e3f2fd',
+    borderRadius: 8,
+    borderLeftWidth: 4,
+    borderLeftColor: '#2196f3',
+  },
+  helpText: {
+    color: '#1976d2',
+    fontSize: 12,
+    textAlign: 'center',
+    fontStyle: 'italic',
   },
   footer: {
     paddingBottom: 20,

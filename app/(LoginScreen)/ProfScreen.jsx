@@ -29,11 +29,14 @@ export default function ProfScreen() {
       return;
     }
     // 2. Connexion avec l'email trouvé et le mot de passe saisi
+    console.log('TENTATIVE CONNEXION avec email:', data.email, 'password:', password);
     const { error: loginError } = await supabase.auth.signInWithPassword({
       email: data.email,
       password: password,
     });
+    console.log('RESULTAT CONNEXION:', loginError);
     if (loginError) {
+      console.log('ERREUR DETAILLEE:', loginError.message);
       setError("Mot de passe incorrect");
       return;
     }
@@ -84,6 +87,7 @@ export default function ProfScreen() {
                 <View style={styles.inputContainer}>
                   <TextInput
                     label="Identifiant professeur"
+                    placeholder="Ex: PROF001"
                     value={profId}
                     onChangeText={setProfId}
                     mode="outlined"
@@ -100,6 +104,7 @@ export default function ProfScreen() {
                   <TextInput
                     ref={passwordRef}
                     label="Mot de passe"
+                    placeholder="Mot de passe"
                     value={password}
                     onChangeText={setPassword}
                     mode="outlined"
