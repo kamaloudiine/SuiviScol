@@ -27,6 +27,13 @@ export default function HomeScreen() {
       icon: '🏫',
       route: '/(LoginScreen)/ProfScreen',
       color: '#FF9800'
+    },
+    {
+      title: 'Administration',
+      subtitle: 'Gérez les utilisateurs et le système',
+      icon: '⚙️',
+      route: '/(LoginScreen)/AdministrateurScreen',
+      color: '#9C27B0'
     }
   ];
 
