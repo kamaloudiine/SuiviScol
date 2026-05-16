@@ -35,8 +35,4 @@ SuiviScol est une application mobile développée avec React Native et Expo pour
 - expo
 - expo-router
 
-## Aide
-Pour toute question, consultez la documentation officielle de [React Native](https://reactnative.dev/) et [Expo](https://docs.expo.dev/).
 
----
-N’hésitez pas à commenter votre code et à mettre à jour ce fichier au fur et à mesure de l’avancement du projet.
