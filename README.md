@@ -1,42 +1,31 @@
 # SuiviScol
 
-SuiviScol est une application mobile développée avec React Native et Expo pour aider à la gestion des activités scolaires.
+SuiviScol est une application mobile de suivi scolaire construite avec React Native, Expo et Supabase.
 
-## Prérequis
-- Node.js
-- Expo CLI (`npm install -g expo-cli`)
-- Expo Go (application mobile pour tester)
+## Démarrage rapide
+```bash
+npm install
+npm start
+```
 
-## Installation
-1. Clonez ce dépôt ou copiez les fichiers sur votre machine.
-2. Installez les dépendances :
-   ```
-   npm install
-   ```
-3. Démarrez le projet :
-   ```
-   npm start
-   ```
-4. Scannez le QR code avec l’application Expo Go sur votre téléphone.
+## Arborescence utile
+- [app/](app/) : écrans Expo Router et navigation
+- [utils/](utils/) : fonctions partagées et logique métier réutilisable
+- [sql/](sql/) : scripts SQL et policies Supabase
+- [docs/](docs/) : documentation technique et fonctionnelle
+- [backup/](backup/) : anciennes versions conservées pour référence
 
-## Structure du projet
-- `app/` : Contient les composants et pages de l’application
-- `assets/` : Images et icônes
-- `package.json` : Dépendances et scripts
+## Scripts
+- `npm start` : lance Expo
+- `npm run android` : ouvre Android
+- `npm run ios` : ouvre iOS
+- `npm run web` : lance la version web
 
-## Scripts utiles
-- `npm start` : Démarre le serveur Expo
-- `npm run android` : Lance l’application sur un émulateur Android
-- `npm run ios` : Lance l’application sur un émulateur iOS
-- `npm run web` : Lance l’application dans le navigateur
+## Stack
+- Expo / React Native
+- Expo Router
+- Supabase
+- React Native Paper
 
-## Dépendances principales
-- react-native
-- expo
-- expo-router
-
-## Aide
-Pour toute question, consultez la documentation officielle de [React Native](https://reactnative.dev/) et [Expo](https://docs.expo.dev/).
-
----
-N’hésitez pas à commenter votre code et à mettre à jour ce fichier au fur et à mesure de l’avancement du projet.
+## Documentation
+Consultez [docs/DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md) pour l’architecture, [docs/USER_GUIDE.md](docs/USER_GUIDE.md) pour l’usage, et [docs/DATABASE_SETUP.md](docs/DATABASE_SETUP.md) pour la base de données.

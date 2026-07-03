@@ -545,10 +545,6 @@ export default function AccueilProf() {
 
   // Marquer une absence
   const handleMarkAbsence = async () => {
-    if (!absenceReason.trim()) {
-      Alert.alert('Erreur', 'Veuillez saisir une raison pour cette absence.');
-      return;
-    }
 
     setMarkingAbsence(true);
 
@@ -573,7 +569,7 @@ export default function AccueilProf() {
             date: absenceDate,
             subject: prof.subject,
             prof_id: prof.id,
-            justified: true, // Marquée comme justifiée car le prof fournit une raison
+            justified: absenceReason.trim() !== '', // Justifiée seulement si une raison est fournie
             reason: absenceReason.trim()
           });
 
