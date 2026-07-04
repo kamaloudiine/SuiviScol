@@ -27,14 +27,10 @@ npm start
 - Supabase
 - React Native Paper
 
-<<<<<<< HEAD
 ## Documentation
 Consultez [docs/DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md) pour l’architecture, [docs/USER_GUIDE.md](docs/USER_GUIDE.md) pour l’usage, et [docs/DATABASE_SETUP.md](docs/DATABASE_SETUP.md) pour la base de données.
-=======
+
 ## Dépendances principales
 - react-native
 - expo
 - expo-router
-
-
->>>>>>> c8d064ffa54e29223e8c770eeaec072e9842fa6b
